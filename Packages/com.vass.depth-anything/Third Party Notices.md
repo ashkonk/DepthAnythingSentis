@@ -22,6 +22,12 @@ BodyPixSentis by Keijiro Takahashi: https://github.com/keijiro/BodyPixSentis
 
 The optional adapter calls its public API. BodyPix code and weights are downloaded separately through Unity Package Manager and remain subject to their original license and notices. No BodyPix assets are bundled in this package.
 
-## Sample photograph
+## Personal sample photograph
+
+`Waterfall.jpg` is a real photograph of Ashkon Khalkhali, supplied by him for this demo on October 22, 2026. The 1536×2049 JPEG image data is unchanged; embedded EXIF/location metadata has been removed. The image is included in `Samples~/Basic` and referenced by both demo scenes. No AI image editing was used.
+
+The personal photograph and README previews containing it are excluded from the software's MIT license. They are supplied for display in this project's demos and documentation; no broader permission to reuse the photograph is granted here. Contact the maintainer about other uses. The credit identifies the supplier and subject, without asserting the photographer's identity.
+
+## Alternative generated sample photograph
 
 Studio.png is an AI-generated fictional scene created for this demo with OpenAI's built-in image-generation tool, October 22, 2026. It is supplied for reuse with these examples, without an attribution requirement from this project's contributors. No claim of exclusive copyright in the generated image is made. See the repository's Documentation/SampleImage.md for the prompt.

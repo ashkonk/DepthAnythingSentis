@@ -24,10 +24,10 @@ public static class DepthPackageTools
         PlayerSettings.runInBackground = true;
         PlayerSettings.SetGraphicsAPIs(BuildTarget.StandaloneWindows64, new[] { UnityEngine.Rendering.GraphicsDeviceType.Direct3D11 });
         PlayerSettings.SetScriptingBackend(UnityEditor.Build.NamedBuildTarget.Standalone, ScriptingImplementation.Mono2x);
-        var image = AssetImporter.GetAtPath("Assets/DepthDemo/Studio.png") as TextureImporter;
+        var image = AssetImporter.GetAtPath("Assets/DepthDemo/Waterfall.jpg") as TextureImporter;
         image.sRGBTexture = true; image.mipmapEnabled = false; image.textureCompression = TextureImporterCompression.Uncompressed;
         image.npotScale = TextureImporterNPOTScale.None;
-        image.maxTextureSize = 2048; image.SaveAndReimport();
+        image.maxTextureSize = 4096; image.SaveAndReimport();
         CreateScene(BasicPath, false);
         EditorBuildSettings.scenes = new[] { new EditorBuildSettingsScene(BasicPath, true) };
         AssetDatabase.SaveAssets();
@@ -51,10 +51,12 @@ public static class DepthPackageTools
         camera.transform.position = new Vector3(0, 0, -10);
         var go = new GameObject(body ? "BodyPix + Depth Anything" : "Depth Anything");
         var demo = go.AddComponent<DepthDemo>();
-        demo.sampleImage = AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/DepthDemo/Studio.png");
+        demo.sampleImage = AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/DepthDemo/Waterfall.jpg");
         demo.displayShader = AssetDatabase.LoadAssetAtPath<Shader>("Assets/DepthDemo/DepthDisplay.shader");
         demo.reliefShader = AssetDatabase.LoadAssetAtPath<Shader>("Assets/DepthDemo/DepthRelief.shader");
         demo.overviewShader = AssetDatabase.LoadAssetAtPath<Shader>("Assets/DepthDemo/DepthOverview.shader");
+        // Start full-scene relief at a modest angle: railing/background gaps are unobserved.
+        if (!body) { demo.reliefStrength = .35f; demo.orbit = -6; }
         if (body)
         {
             var type = TypeCache.GetTypesDerivedFrom<MonoBehaviour>().FirstOrDefault(t => t.FullName == "DepthAnything.Samples.BodyPixDepth");

@@ -1,0 +1,17 @@
+PASS: Demo scene contains the presenter
+PASS: Scene uses its intended processing mode
+PASS: GPU model initialized without errors
+PASS: Scene produces normalized depth
+PASS: Depth preview preserves the source aspect ratio
+PASS: Relief preview preserves the source aspect ratio
+PASS: Normalized image has useful range [0.259, 0.958]
+PASS: Mask coverage matches mode (11.3 %)
+PASS: Person torso is selected in the waterfall photo
+PASS: Distant waterfall is excluded in the waterfall photo
+PASS: Unchanged still does not restart inference
+PASS: Optional adapter is present
+PASS: Disabling BodyPix restores the core presentation
+PASS: Re-enabling BodyPix reacquires a matching still-image mask and depth
+Errors: 0
+GPU: NVIDIA GeForce RTX 5080 Laptop GPU
+Unity: 6000.6.3f1

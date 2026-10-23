@@ -51,8 +51,6 @@ namespace DepthAnything.Samples
                 _reliefMaterial = new Material(reliefShader) { hideFlags = HideFlags.HideAndDontSave };
                 _overviewMaterial = new Material(overviewShader) { hideFlags = HideFlags.HideAndDontSave };
                 _grid = CreateGrid(192, 128);
-                _preview = NewTarget("Depth preview", 768, 512);
-                _relief = NewTarget("Relief preview", 768, 512);
             }
             catch (Exception e) { Error = e.Message; Debug.LogError("Depth demo: " + Error, this); }
         }
@@ -92,16 +90,25 @@ namespace DepthAnything.Samples
 
         public void RenderPreviews()
         {
+            float aspect = Source.width / (float)Source.height;
+            int width = Mathf.Max(1, Mathf.RoundToInt(768 * Mathf.Min(1, aspect)));
+            int height = Mathf.Max(1, Mathf.RoundToInt(768 * Mathf.Min(1, 1 / aspect)));
+            if (_preview == null || _preview.width != width || _preview.height != height)
+            {
+                Release(ref _preview); Release(ref _relief);
+                _preview = NewTarget("Depth preview", width, height);
+                _relief = NewTarget("Relief preview", width, height);
+            }
             _displayMaterial.SetFloat("_Mode", 0);
             Graphics.Blit(ProcessedDepth, _preview, _displayMaterial);
             _reliefMaterial.SetTexture("_MainTex", Source);
             _reliefMaterial.SetTexture("_DepthTex", ProcessedDepth);
             _reliefMaterial.SetFloat("_Strength", reliefStrength);
-            _reliefMaterial.SetFloat("_Aspect", Source.width / (float)Source.height);
+            _reliefMaterial.SetFloat("_Aspect", aspect);
             _reliefMaterial.SetFloat("_CutEdges", ExternalProcessing ? 0 : 1);
             var view = Matrix4x4.TRS(new Vector3(0, 0, -4.2f), Quaternion.identity, new Vector3(1, 1, -1));
             // This manually submitted mesh uses bottom-left UVs, without a camera's automatic target flip.
-            var projection = GL.GetGPUProjectionMatrix(Matrix4x4.Perspective(34, 1.5f, .1f, 20), false);
+            var projection = GL.GetGPUProjectionMatrix(Matrix4x4.Perspective(34, width / (float)height, .1f, 20), false);
             using (var commands = new CommandBuffer { name = "Depth relief preview" })
             {
                 commands.SetRenderTarget(_relief);
@@ -118,11 +125,16 @@ namespace DepthAnything.Samples
         /// <summary>Renders the three actual demo outputs offscreen. Caller owns the returned texture.</summary>
         public RenderTexture CaptureOverview()
         {
-            var target = NewTarget("Depth demo overview", 1800, 452);
+            float aspect = Source.width / (float)Source.height;
+            const int width = 1800, margin = 24, gap = 20;
+            float panelWidth = (width - 2 * margin - 2 * gap) / 3f;
+            int height = Mathf.CeilToInt(panelWidth / Mathf.Clamp(aspect, .5f, 3f)) + 2 * margin;
+            var target = NewTarget("Depth demo overview", width, height);
             _overviewMaterial.SetTexture("_Input", Source);
             _overviewMaterial.SetTexture("_Depth", _preview);
             _overviewMaterial.SetTexture("_Relief", _relief);
-            _overviewMaterial.SetFloat("_InputAspect", Source.width / (float)Source.height);
+            _overviewMaterial.SetFloat("_InputAspect", aspect);
+            _overviewMaterial.SetVector("_OutputSize", new Vector4(width, height, margin, gap));
             Graphics.Blit(Texture2D.blackTexture, target, _overviewMaterial);
             return target;
         }
@@ -157,7 +169,9 @@ namespace DepthAnything.Samples
             }
             GUI.DrawTexture(new Rect(0, 0, Screen.width, Screen.height), Texture2D.blackTexture);
             float margin = 32, gap = 18, width = (Screen.width - margin * 2 - gap * 2) / 3;
-            float height = width / 1.5f, top = Mathf.Max(125, (Screen.height - height) * .43f);
+            float aspect = Source != null ? Source.width / (float)Source.height : 1.5f;
+            float height = Mathf.Min(width / Mathf.Clamp(aspect, .5f, 3f), Mathf.Max(100, Screen.height - 345));
+            float top = Mathf.Max(125, (Screen.height - height) * .43f);
             GUI.Label(new Rect(margin, 25, Screen.width - 64, 45), "Depth Anything V2 / Unity", _title);
             GUI.Label(new Rect(margin, 75, Screen.width - 64, 25), ExternalProcessing ? "BODYPIX  /  PERSON DEPTH" : "ONE IMAGE  /  RELATIVE DEPTH  /  GPU RELIEF", _label);
             DrawPanel(new Rect(margin, top, width, height), Source, "01  INPUT");

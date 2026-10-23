@@ -1,6 +1,6 @@
 {
   "name": "com.vass.depth-anything",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "displayName": "Depth Anything V2",
   "description": "GPU monocular relative depth for Unity. Includes frame-sliced inference, a pinned V2 Small model, GPU normalization and optional mask-aware depth cleanup.",
   "unity": "6000.0",

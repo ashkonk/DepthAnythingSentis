@@ -4,7 +4,24 @@
 
 Unity **6000.6.3f1**, Inference Engine **2.6.1**, Windows x64, D3D11, NVIDIA GeForce RTX 5080 Laptop GPU. The example project uses the Built-in Render Pipeline and Linear color space. Optional integration: BodyPix **5.0.0**, `MobileNetV1-x100-stride8`, processing width 512.
 
-## Standalone builds and runtime
+## 0.1.2: supplied waterfall photograph
+
+The Basic and BodyPix Windows development players were rebuilt and run with the supplied 1536×2049 portrait. Both builds succeeded with zero errors and the same 185 dependency shader warnings. Both actual overview captures were visually inspected and are used in the README.
+
+- **Basic: 36 assertions passed, zero captured runtime errors.** All three quality settings complete inference. The depth preview and mesh target preserve the portrait aspect; normalized depth spans approximately 0.145–1.000. The final Basic build was run after restoring the default manifest without BodyPix. Its initial relief strength is 0.35 and orbit is −6°, keeping the face readable while still showing displaced foreground layers.
+- **BodyPix: 14 assertions passed, zero captured runtime errors.** Approximately 11.3% foreground coverage, the subject's torso included, distant waterfall excluded, portrait proportions preserved, and successful disable/re-enable with matching mask/depth.
+- The original JPEG compressed image data is byte-identical after removal of metadata segments; no crop or image generation was used. The studio image remains available as an alternative.
+- Full-scene relief still shows stretched or missing surfaces around the railing and silhouette when rotated. This reflects unseen background and depth discontinuities in a single image. The BodyPix view removes the background and gives a cleaner person-only preview. Neither is a complete 3D reconstruction.
+
+Evidence: [Basic results](Validation/waterfall-basic-results.txt), [BodyPix results](Validation/waterfall-bodypix-results.txt), [Basic build](Validation/waterfall-build-basic.txt), [BodyPix build](Validation/waterfall-build-bodypix.txt). Counts refer to individual assertions, including scheduling checks, rather than separate scenarios. Runtime inference and the normalized-depth implementation were not changed; the code change is in the sample's presentation and capture sizing.
+
+The **0.1.2 tarball** was also installed in a new Unity project without BodyPix. Package Manager imported the Basic sample; its scene, shaders and 1536×2049 photograph references were intact. GPU inference produced finite, non-flat output in four ticks using the fresh project's Gamma color space. [Import evidence](Validation/waterfall-tarball-import.txt), [inference evidence](Validation/waterfall-tarball-verify.txt).
+
+[Preservation checks](Validation/waterfall-preservation.json) confirm identical image data, matching packaged/sample files, the original model hash and unchanged hashes for all ten VASS files captured at the start of this update. The project's default package manifest and settings retain the independent Basic setup.
+
+The following sections retain the original studio-image validation and licensing history.
+
+## 0.1.0: standalone builds and runtime
 
 Both the Basic and BodyPix Windows development players built successfully with **zero build errors**. The final build reports contain **185 dependency shader warnings**, principally Inference Engine compute/pixel shader compiler diagnostics. No C# or shader warnings were found in this package's own files. Unity's transitive App UI dependency also logs that it creates default settings at player startup; it is not used by this sample's IMGUI presentation.
 

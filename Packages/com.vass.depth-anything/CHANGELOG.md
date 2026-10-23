@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.2
+
+- Use Ashkon Khalkhali's supplied waterfall portrait in both sample scenes and actual inference README previews; keep the generated studio image as an alternative.
+- Preserve portrait proportions in the depth preview, displaced mesh and overview capture.
+- Remove embedded location metadata from the supplied photo and document its separate demo usage terms.
+
 ## 0.1.1
 
 - Licensed the original Unity integration under MIT, credited Ashkon Khalkhali, and retained a separate Apache-2.0 license for the model.

@@ -15,7 +15,8 @@ public static class PackageInstallCheck
 
     public static void ImportBasic()
     {
-        var samples = Sample.FindByPackage("com.vass.depth-anything", "0.1.0").ToArray();
+        var package = UnityEditor.PackageManager.PackageInfo.FindForAssembly(typeof(DepthEstimator).Assembly);
+        var samples = Sample.FindByPackage(package.name, package.version).ToArray();
         if (samples.Length != 2) throw new Exception("Expected Basic and BodyPix samples in the installed tarball.");
         var basic = samples.Single(s => s.displayName == "Basic");
         if (!basic.Import(Sample.ImportOptions.OverridePreviousImports)) throw new Exception("Sample import failed.");
@@ -38,7 +39,7 @@ public static class PackageInstallCheck
             if (TypeCache.GetTypesDerivedFrom<MonoBehaviour>().Any(t => t.FullName == "DepthAnything.Samples.BodyPixDepth"))
                 throw new Exception("Optional BodyPix code unexpectedly compiled in the core install.");
             _image = (Texture2D)serialized.FindProperty("sampleImage").objectReferenceValue;
-            if (_image.width != 1536 || _image.height != 1024) throw new Exception("Sample image aspect changed on import.");
+            if (_image.width != 1536 || _image.height != 2049) throw new Exception("Sample image aspect changed on import.");
             _estimator = new DepthEstimator();
             EditorApplication.update += Tick;
         }
@@ -62,7 +63,7 @@ public static class PackageInstallCheck
             if (values.Any(v => float.IsNaN(v) || float.IsInfinity(v)) || values.Max() - values.Min() < .01f)
                 throw new Exception("Packaged model produced invalid or flat depth.");
             UnityEngine.Object.DestroyImmediate(readback);
-            File.WriteAllText("verify-result.txt", "PASS: Fresh tarball installation compiles without BodyPix.\nPASS: Package Manager Basic sample has intact scene/script/image/shader references.\nPASS: Sample photo preserves 1536x1024 dimensions.\nPASS: Bundled model performs GPU inference with finite, non-flat output.\nTicks: " + _ticks + "\nColor space: " + QualitySettings.activeColorSpace + "\n");
+            File.WriteAllText("verify-result.txt", "PASS: Fresh tarball installation compiles without BodyPix.\nPASS: Package Manager Basic sample has intact scene/script/image/shader references.\nPASS: Sample photo preserves 1536x2049 dimensions.\nPASS: Bundled model performs GPU inference with finite, non-flat output.\nTicks: " + _ticks + "\nColor space: " + QualitySettings.activeColorSpace + "\n");
             EditorApplication.update -= Tick; _estimator.Dispose();
             EditorApplication.Exit(0);
         }

@@ -2,9 +2,9 @@
 
 Turn an image, video texture or webcam frame into a GPU depth texture using **Depth Anything V2 Small** and Unity's **Inference Engine / Sentis 2.6.1**.
 
-![Actual Unity demo: source photograph, estimated depth and displaced mesh](Documentation/demo.png)
+![Actual Unity demo: Ashkon's waterfall photograph, estimated depth and displaced mesh](Documentation/waterfall-demo.png)
 
-Left to right: source photograph, estimated depth, displaced mesh. These are the included demo's actual GPU render targets, captured offscreen. The source photograph is AI-generated; the depth and relief are computed by the shipped model. No Python service, native inference plugin or CUDA installation is needed at runtime.
+Left to right: source photograph, estimated depth, displaced mesh. The photograph of **Ashkon Khalkhali** at a waterfall is the included demo's default input. These are actual GPU render targets, captured offscreen; the depth and relief are computed by the shipped model. The portrait's proportions are preserved in all three panels. No Python service, native inference plugin or CUDA installation is needed at runtime.
 
 ## Quick start
 
@@ -13,7 +13,7 @@ Left to right: source photograph, estimated depth, displaced mesh. These are the
 3. Open **`Assets/DepthDemo/DepthDemo.unity`** and press Play.
 4. Adjust quality, relief and orbit. Enable **Use webcam** to switch inputs, or assign your own `Texture2D` to **Sample Image**. A prepared `VideoPlayer` can also be assigned; its texture and frame index are used automatically.
 
-The sample photo is included at [`Assets/DepthDemo/Studio.png`](Assets/DepthDemo/Studio.png). Camera hardware is only accessed when the webcam toggle is enabled.
+The sample photo is included at [`Assets/DepthDemo/Waterfall.jpg`](Assets/DepthDemo/Waterfall.jpg). The original generated [`Studio.png`](Assets/DepthDemo/Studio.png) remains available as a landscape alternative: drag either texture into **Sample Image**. Camera hardware is only accessed when the webcam toggle is enabled.
 
 ## Install only the package
 
@@ -87,7 +87,7 @@ Widths are rounded to patches; grids of 24 or 48 patches are nudged to avoid a r
 
 ## Optional BodyPix sample
 
-![Actual Unity BodyPix sample: source, person depth and relief](Documentation/bodypix-demo.png)
+![Actual Unity BodyPix sample: Ashkon's photograph, person depth and relief](Documentation/waterfall-bodypix-demo.png)
 
 1. Install [Keijiro's BodyPixSentis](https://github.com/keijiro/BodyPixSentis), **version 5.0.0**. Add the scoped registry `https://registry.npmjs.org` with scopes `jp.keijiro.bodypix` and `jp.keijiro.klak.nnutils`, then install `jp.keijiro.bodypix`.
 2. Import this package's **Basic** sample first (the example project already contains it).
@@ -114,7 +114,7 @@ This is a small integration example, not VASS's full segmentation/refinement or 
 
 Unity integration, GPU processing and samples by **Ashkon Khalkhali**. Copyright (c) 2026 Ashkon Khalkhali.
 
-The integration code, shaders, demo scenes, tools and documentation are licensed under **MIT**; see [LICENSE](LICENSE). This permission applies to this project's original work. The bundled model and external dependencies retain their own licenses, and the generated sample photograph has the separate reuse note below. The package metadata uses `MIT AND Apache-2.0` to describe the two licenses for its separate components; it is not a choice of license for the model.
+The integration code, shaders, demo scenes, tools and documentation are licensed under **MIT**; see [LICENSE](LICENSE). This permission applies to this project's original work. The bundled model and external dependencies retain their own licenses, and the photographs have separate reuse notes below. The package metadata uses `MIT AND Apache-2.0` to describe the software and model licenses; it is not a choice of license for the model or a license for the personal photograph.
 
 Extracted and adapted from the VASS integration; no VASS runtime, scenes or settings are required.
 
@@ -128,10 +128,10 @@ Depth Anything V2 is by Lihe Yang, Bingyi Kang, Zilong Huang, Zhen Zhao, Xiaogan
 
 Optional BodyPix is maintained by Keijiro Takahashi and distributed separately under its own notices. This project is not affiliated with Keijiro or the Depth Anything authors.
 
-The sample photograph was generated for this repository. Its provenance and exact prompt are in [Sample Image](Documentation/SampleImage.md). The original model is stored as a normal Git binary below GitHub's per-file size limit; no Git LFS setup is required. A package release may also be distributed as a `.tgz`.
+The waterfall photograph was supplied by **Ashkon Khalkhali** for this demo. It is unretouched, with embedded EXIF/location metadata removed from the repository copy. The personal photograph and README previews containing it are excluded from the software's MIT license; they are supplied for display in this project's demos and documentation, without a broader grant of photo reuse. The optional generated studio image retains its original reuse note. See [Sample Image](Documentation/SampleImage.md) for both images' provenance. The original model is stored as a normal Git binary below GitHub's per-file size limit; no Git LFS setup is required. A package release may also be distributed as a `.tgz`.
 
 ## Reproduce validation and package a release
 
 With Unity closed, run `Tools/Validate.ps1` in PowerShell. It builds and runs the Basic Windows player, writes checks under `Validation/basic`, and captures actual depth/relief textures. After enabling the BodyPix sample, use `Tools/Validate.ps1 -BodyPix`. Supply `-Unity` if the Editor is installed elsewhere. The smoke runner never opens a webcam automatically.
 
-`Tools/Pack.ps1` creates `Releases/com.vass.depth-anything-0.1.1.tgz` for Package Manager's **Install package from tarball**. `Tools/Export-Source.ps1` creates the complete example project ZIP using the same package version. Bump the version or move an earlier archive aside before creating another release.
+`Tools/Pack.ps1` creates `Releases/com.vass.depth-anything-0.1.2.tgz` for Package Manager's **Install package from tarball**. `Tools/Export-Source.ps1` creates the complete example project ZIP using the same package version. Bump the version or move an earlier archive aside before creating another release.

@@ -1,0 +1,9 @@
+{
+  "Photo": "Waterfall.jpg",
+  "CompressedJpegImageDataUnchanged": true,
+  "CompressedJpegImageDataSha256": "fb72f62db155e194c5eb3dc21fd39b441579d9b8dd4fa71f94d03add8ac0502d",
+  "SampleCopiesIdentical": true,
+  "BodyPixSceneMatchesTestedScene": true,
+  "UnchangedVassBaselineFiles": 10,
+  "ModelSha256": "afb6a5c28f3b6bf1618c6e43f02073ef9dfdc70e937502d51603e57b0a1df10c"
+}

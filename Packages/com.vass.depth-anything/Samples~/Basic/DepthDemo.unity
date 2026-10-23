@@ -231,7 +231,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 17aa7a46b70f00e47af671d2d02699b3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: DepthAnything.Samples::DepthAnything.Samples.DepthDemo
-  sampleImage: {fileID: 2800000, guid: 2a4a1fcc65f7c5646b4777166584681f, type: 3}
+  sampleImage: {fileID: 2800000, guid: 142dd97d8ab348fabd599692c7ac7634, type: 3}
   displayShader: {fileID: 4800000, guid: 81246e8b67084ad4fbb31a151f788732, type: 3}
   reliefShader: {fileID: 4800000, guid: 9489337ae548bc14bbde97a0294bdce6, type: 3}
   overviewShader: {fileID: 4800000, guid: d8856c0e3f489624b9f376d7648d2c86, type: 3}
@@ -240,8 +240,8 @@ MonoBehaviour:
   useWebcam: 0
   webcamIndex: 0
   showInterface: 1
-  reliefStrength: 0.6
-  orbit: -15
+  reliefStrength: 0.35
+  orbit: -6
 --- !u!4 &1351415404
 Transform:
   m_ObjectHideFlags: 0

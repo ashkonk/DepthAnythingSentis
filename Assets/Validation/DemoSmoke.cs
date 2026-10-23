@@ -50,6 +50,11 @@ namespace DepthAnything.Samples
             Check(demo.ProcessedDepth != null, "Scene produces normalized depth");
             if (demo.ProcessedDepth == null) { Finish(); yield break; }
             for (int i = 0; i < 12; i++) yield return null;
+            float sourceAspect = demo.Source.width / (float)demo.Source.height;
+            Check(Mathf.Abs(demo.DepthPreview.width / (float)demo.DepthPreview.height - sourceAspect) < .01f,
+                "Depth preview preserves the source aspect ratio");
+            Check(Mathf.Abs(demo.ReliefPreview.width / (float)demo.ReliefPreview.height - sourceAspect) < .01f,
+                "Relief preview preserves the source aspect ratio");
             var normalized = Read(demo.ProcessedDepth);
             var pixels = normalized.GetPixels();
             float min = 1, max = 0; int covered = 0;
@@ -64,8 +69,8 @@ namespace DepthAnything.Samples
                 $"Mask coverage matches mode ({covered / (float)pixels.Length:P1})");
             if (demo.ExternalProcessing)
             {
-                Check(normalized.GetPixelBilinear(.40f, .55f).g > .8f, "Person torso is selected in the included photo");
-                Check(normalized.GetPixelBilinear(.82f, .65f).g < .1f, "Studio background is excluded in the included photo");
+                Check(normalized.GetPixelBilinear(.66f, .38f).g > .8f, "Person torso is selected in the waterfall photo");
+                Check(normalized.GetPixelBilinear(.38f, .85f).g < .1f, "Distant waterfall is excluded in the waterfall photo");
             }
             Destroy(normalized);
             int revision = demo.Estimator.Revision;
