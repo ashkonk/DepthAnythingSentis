@@ -2,9 +2,11 @@
 
 Turn an image, video texture or webcam frame into a GPU depth texture using **Depth Anything V2 Small** and Unity's **Inference Engine / Sentis 2.6.1**.
 
-![Actual Unity demo: Ashkon's waterfall photograph, estimated depth and displaced mesh](Documentation/waterfall-demo.png)
+![Actual Unity demo: waterfall photograph, estimated depth and displaced mesh](Documentation/waterfall-demo.png)
 
-Left to right: source photograph, estimated depth, displaced mesh. The photograph of **Ashkon Khalkhali** at a waterfall is the included demo's default input. These are actual GPU render targets, captured offscreen; the depth and relief are computed by the shipped model. The portrait's proportions are preserved in all three panels. No Python service, native inference plugin or CUDA installation is needed at runtime.
+source photograph - estimated depth - displaced mesh. 
+
+The photograph at a waterfall is the included demo's default input. These are actual GPU render targets, captured offscreen; the depth and relief are computed by the shipped model.
 
 ## Quick start
 
@@ -12,9 +14,6 @@ Left to right: source photograph, estimated depth, displaced mesh. The photograp
 2. Let Unity resolve packages and import the included ONNX model. The first import can take a while.
 3. Open **`Assets/DepthDemo/DepthDemo.unity`** and press Play.
 4. Adjust quality, relief and orbit. Enable **Use webcam** to switch inputs, or assign your own `Texture2D` to **Sample Image**. A prepared `VideoPlayer` can also be assigned; its texture and frame index are used automatically.
-
-The sample photo is included at [`Assets/DepthDemo/Waterfall.jpg`](Assets/DepthDemo/Waterfall.jpg). The original generated [`Studio.png`](Assets/DepthDemo/Studio.png) remains available as a landscape alternative: drag either texture into **Sample Image**. Camera hardware is only accessed when the webcam toggle is enabled.
-
 ## Install only the package
 
 In another Unity project, choose **Window > Package Management > Package Manager > + > Install package from disk**, then select:
@@ -87,7 +86,7 @@ Widths are rounded to patches; grids of 24 or 48 patches are nudged to avoid a r
 
 ## Optional BodyPix sample
 
-![Actual Unity BodyPix sample: Ashkon's photograph, person depth and relief](Documentation/waterfall-bodypix-demo.png)
+![Actual Unity BodyPix sample: photograph, person depth and relief](Documentation/waterfall-bodypix-demo.png)
 
 1. Install [Keijiro's BodyPixSentis](https://github.com/keijiro/BodyPixSentis), **version 5.0.0**. Add the scoped registry `https://registry.npmjs.org` with scopes `jp.keijiro.bodypix` and `jp.keijiro.klak.nnutils`, then install `jp.keijiro.bodypix`.
 2. Import this package's **Basic** sample first (the example project already contains it).
