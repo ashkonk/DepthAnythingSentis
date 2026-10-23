@@ -1,0 +1,14 @@
+{
+  "name": "com.vass.depth-anything",
+  "version": "0.1.1",
+  "displayName": "Depth Anything V2",
+  "description": "GPU monocular relative depth for Unity. Includes frame-sliced inference, a pinned V2 Small model, GPU normalization and optional mask-aware depth cleanup.",
+  "unity": "6000.0",
+  "license": "MIT AND Apache-2.0",
+  "author": { "name": "Ashkon Khalkhali" },
+  "dependencies": { "com.unity.ai.inference": "2.6.1" },
+  "samples": [
+    { "displayName": "Basic", "description": "Image or webcam input, depth visualization and a displaced mesh. Open DepthDemo.unity.", "path": "Samples~/Basic" },
+    { "displayName": "BodyPix", "description": "Optional person depth. Install BodyPix 5.0.0 and import Basic first, then open BodyPixDemo.unity.", "path": "Samples~/BodyPix" }
+  ]
+}

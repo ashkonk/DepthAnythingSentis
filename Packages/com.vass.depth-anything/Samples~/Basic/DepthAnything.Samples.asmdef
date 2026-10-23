@@ -1,0 +1,6 @@
+{
+  "name": "DepthAnything.Samples",
+  "rootNamespace": "DepthAnything.Samples",
+  "references": ["DepthAnything.Runtime"],
+  "autoReferenced": true
+}

@@ -1,0 +1,6 @@
+{
+  "name": "DepthAnything.BodyPixSample",
+  "rootNamespace": "DepthAnything.Samples",
+  "references": ["DepthAnything.Runtime", "DepthAnything.Samples", "BodyPix.Runtime", "Unity.InferenceEngine"],
+  "autoReferenced": true
+}

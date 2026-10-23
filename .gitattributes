@@ -1,2 +1,7 @@
-# Auto detect text files and perform LF normalization
 * text=auto
+*.cs text eol=lf
+*.shader text eol=lf
+*.json text eol=lf
+*.md text eol=lf
+*.onnx -text -filter -diff -merge
+*.png -text -filter -diff -merge

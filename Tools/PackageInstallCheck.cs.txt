@@ -1,0 +1,78 @@
+using System;
+using System.IO;
+using System.Linq;
+using DepthAnything;
+using UnityEditor;
+using UnityEditor.PackageManager.UI;
+using UnityEditor.SceneManagement;
+using UnityEngine;
+
+public static class PackageInstallCheck
+{
+    static DepthEstimator _estimator;
+    static Texture2D _image;
+    static int _ticks;
+
+    public static void ImportBasic()
+    {
+        var samples = Sample.FindByPackage("com.vass.depth-anything", "0.1.0").ToArray();
+        if (samples.Length != 2) throw new Exception("Expected Basic and BodyPix samples in the installed tarball.");
+        var basic = samples.Single(s => s.displayName == "Basic");
+        if (!basic.Import(Sample.ImportOptions.OverridePreviousImports)) throw new Exception("Sample import failed.");
+        File.WriteAllText("import-result.txt", "PASS: Tarball resolved; Package Manager imported Basic. BodyPix sample remains unimported.\n");
+        Debug.Log("DEPTH_TARBALL_SAMPLE_IMPORTED");
+    }
+
+    public static void Verify()
+    {
+        try
+        {
+            var scenePath = AssetDatabase.FindAssets("DepthDemo t:Scene", new[] { "Assets" }).Select(AssetDatabase.GUIDToAssetPath).Single();
+            var scene = EditorSceneManager.OpenScene(scenePath);
+            var components = scene.GetRootGameObjects().SelectMany(g => g.GetComponentsInChildren<MonoBehaviour>(true)).ToArray();
+            if (components.Any(c => c == null)) throw new Exception("Imported sample has a missing script.");
+            var demo = components.Single(c => c.GetType().FullName == "DepthAnything.Samples.DepthDemo");
+            var serialized = new SerializedObject(demo);
+            foreach (var name in new[] { "sampleImage", "displayShader", "reliefShader", "overviewShader" })
+                if (serialized.FindProperty(name).objectReferenceValue == null) throw new Exception("Missing imported reference: " + name);
+            if (TypeCache.GetTypesDerivedFrom<MonoBehaviour>().Any(t => t.FullName == "DepthAnything.Samples.BodyPixDepth"))
+                throw new Exception("Optional BodyPix code unexpectedly compiled in the core install.");
+            _image = (Texture2D)serialized.FindProperty("sampleImage").objectReferenceValue;
+            if (_image.width != 1536 || _image.height != 1024) throw new Exception("Sample image aspect changed on import.");
+            _estimator = new DepthEstimator();
+            EditorApplication.update += Tick;
+        }
+        catch (Exception e) { Fail(e); }
+    }
+
+    static void Tick()
+    {
+        try
+        {
+            _ticks++;
+            _estimator.Process(_image, DepthEstimator.Quality.Fast, 1);
+            if (_estimator.HasError || _ticks > 120) throw new Exception(_estimator.Status);
+            if (_estimator.DepthTexture == null) return;
+            var previous = RenderTexture.active;
+            RenderTexture.active = _estimator.DepthTexture;
+            var readback = new Texture2D(_estimator.DepthTexture.width, _estimator.DepthTexture.height, TextureFormat.RGBAFloat, false, true);
+            readback.ReadPixels(new Rect(0, 0, readback.width, readback.height), 0, 0); readback.Apply();
+            RenderTexture.active = previous;
+            var values = readback.GetPixels().Select(c => c.r).ToArray();
+            if (values.Any(v => float.IsNaN(v) || float.IsInfinity(v)) || values.Max() - values.Min() < .01f)
+                throw new Exception("Packaged model produced invalid or flat depth.");
+            UnityEngine.Object.DestroyImmediate(readback);
+            File.WriteAllText("verify-result.txt", "PASS: Fresh tarball installation compiles without BodyPix.\nPASS: Package Manager Basic sample has intact scene/script/image/shader references.\nPASS: Sample photo preserves 1536x1024 dimensions.\nPASS: Bundled model performs GPU inference with finite, non-flat output.\nTicks: " + _ticks + "\nColor space: " + QualitySettings.activeColorSpace + "\n");
+            EditorApplication.update -= Tick; _estimator.Dispose();
+            EditorApplication.Exit(0);
+        }
+        catch (Exception e) { Fail(e); }
+    }
+
+    static void Fail(Exception e)
+    {
+        EditorApplication.update -= Tick; _estimator?.Dispose();
+        File.WriteAllText("verify-result.txt", "FAIL: " + e);
+        Debug.LogException(e); EditorApplication.Exit(1);
+    }
+}

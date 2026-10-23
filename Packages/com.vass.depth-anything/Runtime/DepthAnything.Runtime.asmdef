@@ -1,0 +1,6 @@
+{
+  "name": "DepthAnything.Runtime",
+  "rootNamespace": "DepthAnything",
+  "references": ["Unity.InferenceEngine"],
+  "autoReferenced": true
+}
