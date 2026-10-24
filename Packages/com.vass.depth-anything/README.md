@@ -17,14 +17,14 @@ Red contains relative inverse depth: larger means nearer, with unknown scale and
 
 Import **Basic** from Samples for a runnable image/webcam demo and sample image. Import **BodyPix** only after Basic and Keijiro's `jp.keijiro.bodypix` 5.0.0 are installed. The core never references BodyPix. The demo scenes use the Built-in Render Pipeline and standard IMGUI/video/image-conversion modules.
 
-Both scenes default to `Waterfall.jpg`, a real photograph of Ashkon Khalkhali supplied for the demo. Portrait proportions are preserved. The generated `Studio.png` remains available as a landscape alternative; assign it to the presenter's **Sample Image** field to switch inputs.
+Both scenes default to `Waterfall.jpg`, Portrait proportions are preserved.
 
-The Small model is included and pinned. Other variants have different licensing. No Python, server or CUDA dependency is needed. Requires GPU compute; WebGL is unsupported. Other platforms and render pipelines need validation.
+The Small model is included and pinned. Requires GPU compute; WebGL is unsupported.
 
-Depth work is spread across calls: 128 cold iterator steps, then approximately three calls per estimate with a 192-step cap. This bounds CPU scheduling, not individual GPU dispatch times. Range smoothing does not provide per-pixel video stabilization. Single-view relief does not reconstruct occluded geometry.
+Depth work is spread across calls: 128 cold iterator steps, then approximately three calls per estimate with a 192-step cap.
 
 ## Credits and license
 
-Unity integration, GPU processing and samples by **Ashkon Khalkhali**. Copyright (c) 2026 Ashkon Khalkhali.
+Unity integration by **Ashkon Khalkhali**. Copyright (c) 2026 Ashkon Khalkhali.
 
-The original integration code, shaders, demo scenes and documentation are **MIT** licensed; see [LICENSE.md](LICENSE.md). The unmodified Depth Anything V2 Small model retains **Apache-2.0**; see [ThirdParty/DepthAnything/LICENSE.txt](ThirdParty/DepthAnything/LICENSE.txt). Package metadata uses `MIT AND Apache-2.0` for the software and model, not as alternative licenses for the model or a license for the personal photograph. Preserve both license texts and [Third Party Notices.md](Third%20Party%20Notices.md) when redistributing both components. External dependencies retain their own licenses. The personal photograph is excluded from MIT and supplied for display in this project's demos and documentation; both photographs' reuse terms are recorded in the notices.
+The original integration code, shaders, demo scenes and documentation are **MIT** licensed; see [LICENSE.md](LICENSE.md). The unmodified Depth Anything V2 Small model retains **Apache-2.0**; see [ThirdParty/DepthAnything/LICENSE.txt](ThirdParty/DepthAnything/LICENSE.txt). Package metadata uses `MIT AND Apache-2.0` for the software and model, not as alternative licenses for the model or a license for the personal photograph. Preserve both license texts and [Third Party Notices.md](Third%20Party%20Notices.md) when redistributing both components. External dependencies retain their own licenses.
