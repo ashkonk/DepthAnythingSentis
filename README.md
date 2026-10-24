@@ -1,136 +1,86 @@
-# Depth Anything V2 for Unity
+# DepthAnythingSentis
 
-Turn an image, video texture or webcam frame into a GPU depth texture using **Depth Anything V2 Small** and Unity's **Inference Engine / Sentis 2.6.1**.
+![Input, depth map and displaced mesh](Documentation/waterfall-demo.png)
 
-![Actual Unity demo: waterfall photograph, estimated depth and displaced mesh](Documentation/waterfall-demo.png)
+**DepthAnythingSentis** estimates depth from images, video and webcam input using
+[Depth Anything V2](https://github.com/DepthAnything/Depth-Anything-V2). It runs on
+[Sentis](https://docs.unity3d.com/Packages/com.unity.ai.inference@latest), Unity's
+neural network runtime, and returns a depth texture on the GPU.
 
-source photograph - estimated depth - displaced mesh. 
+## Requirements
 
-The photograph at a waterfall is the included demo's default input. These are actual GPU render targets, captured offscreen; the depth and relief are computed by the shipped model.
+- Unity 6.0 or newer
+- GPU with compute shader support
 
-## Quick start
+GPU inference only. WebGL is not supported. The samples use the Built-in Render
+Pipeline and have been tested on Windows with Direct3D 11.
 
-1. Open this repository folder as a Unity project in **Unity 6000.6.3f1** (the tested editor).
-2. Let Unity resolve packages and import the included ONNX model. The first import can take a while.
-3. Open **`Assets/DepthDemo/DepthDemo.unity`** and press Play.
-4. Adjust quality, relief and orbit. Enable **Use webcam** to switch inputs, or assign your own `Texture2D` to **Sample Image**. A prepared `VideoPlayer` can also be assigned; its texture and frame index are used automatically.
-## Install only the package
+## Installation
 
-In another Unity project, choose **Window > Package Management > Package Manager > + > Install package from disk**, then select:
-
-```text
-Packages/com.vass.depth-anything/package.json
-```
-
-Keep that package folder in a durable location. Alternatively, copy the entire `com.vass.depth-anything` directory into your project's `Packages` directory as an embedded package. The core has one declared dependency: `com.unity.ai.inference` version `2.6.1`.
-
-After this repository is published, Git installation can use its clone URL followed by `?path=/Packages/com.vass.depth-anything`. No hosted repository URL is assumed in this distribution.
-
-Import **Basic** from the package's **Samples** tab, then open the imported `DepthDemo.unity`. The samples use Unity's standard IMGUI, video and image-conversion modules. They are included in ordinary Unity templates and in this repository's manifest.
-
-## API
-
-```csharp
-using DepthAnything;
-using UnityEngine;
-
-public sealed class MyDepthInput : MonoBehaviour
-{
-    public Texture source;
-    DepthEstimator estimator;
-
-    void OnEnable() => estimator = new DepthEstimator();
-
-    void Update()
-    {
-        estimator.Process(source, DepthEstimator.Quality.Fast);
-        RenderTexture rawDepth = estimator.DepthTexture;
-        // null until the first estimate completes; pass it to your own shader.
-    }
-
-    void OnDisable() => estimator?.Dispose();
-}
-```
-
-- **Input:** an RGB Unity `Texture`. Preprocessing converts sampled colors back to sRGB when needed, applies ImageNet normalization, and resizes to a 14-pixel patch grid.
-- **Output:** a borrowed `RHalf` texture. Red contains **relative inverse depth**: larger values are nearer. Values are neither meters nor restricted to 0–1. Do not dispose the texture yourself; it may be replaced when the input grid changes.
-- **Scheduling:** call `Process` once per rendered frame, including frames with no new input. Cold inference schedules at most 128 iterator steps per call. Warm inference targets roughly three calls per estimate, capped at 192 steps. These are scheduling limits, not GPU-time guarantees.
-- **Freshness:** for a video or other producer, pass its increasing frame version as the third argument. A `Texture2D` defaults to `updateCount`; other texture types with no explicit version are processed continuously. GPU edits to a `Texture2D` need an explicit producer version or `IncrementUpdateCount()`.
-- **State:** `Revision` counts completed estimates, `StartedRun` identifies the tick when the input was captured, and `HasError` / `Status` report failures. `Reset()` clears a failure and pending work. `Dispose()` releases owned GPU resources.
-- **Threading:** create, process and dispose on Unity's main thread.
-
-The default constructor loads the pinned model bundled with the package. `new DepthEstimator(modelAsset)` accepts a compatible export with the same input and output contract; it is not a universal depth-model loader.
-
-### Normalization and masks
-
-```csharp
-var post = new DepthPostProcessor(); // create once
-post.Process(estimator.DepthTexture, deltaTime: Time.deltaTime);
-RenderTexture normalized = post.Texture; // R: 0..1, near=1; G: coverage
-// Dispose post when its owner is disabled or destroyed.
-```
-
-The normalizer uses mean ± 2 standard deviations, with optional smoothing of the range. It keeps statistics and output on the GPU. This is a display/relief mapping, not metric calibration or per-pixel temporal stabilization.
-
-For a foreground mask, pass `currentMask` and `estimateMask` to `Process`. Both masks must share the depth texture's UV framing. Capture `estimateMask` when `StartedRun` becomes true and retain it until that estimate completes. The processor intersects the two masks, rejects unreliable outline depth, then fills from trusted interior pixels. It accepts masks from any segmentation provider; **BodyPix is not a core dependency**.
-
-### Quality
-
-| Preset | Nominal input height | Approximate 16:9 grid |
-| --- | ---: | ---: |
-| Fast | 308 | 546 × 308 |
-| Balanced | 392 | 700 × 392 |
-| Detail | 518 | 924 × 518 |
-
-Widths are rounded to patches; grids of 24 or 48 patches are nudged to avoid a resize mismatch in the pinned ONNX export on Inference Engine 2.6.1. Extreme aspect ratios are bounded, so they can be distorted. Start with Fast for live input. Rendering FPS and inference updates per second are separate quantities.
-
-## Optional BodyPix sample
-
-![Actual Unity BodyPix sample: photograph, person depth and relief](Documentation/waterfall-bodypix-demo.png)
-
-1. Install [Keijiro's BodyPixSentis](https://github.com/keijiro/BodyPixSentis), **version 5.0.0**. Add the scoped registry `https://registry.npmjs.org` with scopes `jp.keijiro.bodypix` and `jp.keijiro.klak.nnutils`, then install `jp.keijiro.bodypix`.
-2. Import this package's **Basic** sample first (the example project already contains it).
-3. Import **BodyPix**, then open the imported **`BodyPixDemo.unity`**. Its resource reference targets BodyPix's `MobileNetV1-x100-stride8` asset for a finer demo mask. You can choose a smaller resource and resolution in the Inspector for live use.
-4. Press Play. The scene estimates whole-image depth, captures the matching person mask, and displays cleaned, normalized person relief.
-
-For the included example project, **close Unity first**, then run `Tools/Enable-BodyPix.ps1` in PowerShell to add the registry/dependency and copy the optional sample. Reopen Unity and open `Assets/BodyPixDemo/BodyPixDemo.unity`. The script changes only this example project's manifest and adds that sample folder.
-
-The adapter code and scene live under `Samples~/BodyPix`, which Unity ignores until imported. Do not import that sample before installing BodyPix, or its assembly references will be unresolved. To remove BodyPix later, remove the imported BodyPix sample first. The core and Basic sample continue to work independently.
-
-This is a small integration example, not VASS's full segmentation/refinement or stage-rendering system. BodyPix inference itself runs as one scheduled operation; only the depth estimator is frame-sliced. The adapter retains masks from the start of each depth estimate, but fast motion can still create visible lag.
-
-## Compatibility and limitations
-
-- Tested target: **Windows x64, D3D11**, Unity **6000.6.3f1**, Inference Engine **2.6.1**. See [validation](Documentation/Validation.md) for executed checks.
-- Requires a compute-capable GPU and float/half render textures. The core does not reference URP, HDRP or VASS. The bundled demo uses the Built-in Render Pipeline; other pipelines and graphics APIs need their own validation.
-- WebGL is unsupported by this GPUCompute implementation. Mobile, macOS, Linux and physical webcam behavior have not been validated here.
-- The simple webcam sample uses the camera's raw texture orientation. Applications targeting rotated or mirrored camera feeds should normalize their input framing before passing it to the estimator.
-- Relative depth cannot measure distance or recover hidden surfaces. The relief sample shows a single displaced image, so large rotations reveal holes and stretched surfaces.
-- Raw model output can flicker between frames. Range smoothing does not turn V2 into Video Depth Anything.
-- First-time shader compilation and model allocation can be expensive even though inference scheduling is sliced.
-
-## Model, credits and license
-
-Unity integration, GPU processing and samples by **Ashkon Khalkhali**. Copyright (c) 2026 Ashkon Khalkhali.
-
-The integration code, shaders, demo scenes, tools and documentation are licensed under **MIT**; see [LICENSE](LICENSE). This permission applies to this project's original work. The bundled model and external dependencies retain their own licenses, and the photographs have separate reuse notes below. The package metadata uses `MIT AND Apache-2.0` to describe the software and model licenses; it is not a choice of license for the model or a license for the personal photograph.
-
-Extracted and adapted from the VASS integration; no VASS runtime, scenes or settings are required.
-
-The **unmodified V2 Small ONNX model** is included [onnx-community/depth-anything-v2-small](https://huggingface.co/onnx-community/depth-anything-v2-small), revision `4472b7362082ad9968fee890ca0f1e5aca36b93d`, file `onnx/model.onnx`.
+In Unity's Package Manager, choose **Install package from Git URL** and enter:
 
 ```text
-SHA-256: afb6a5c28f3b6bf1618c6e43f02073ef9dfdc70e937502d51603e57b0a1df10c
+https://github.com/ashkonk/DepthAnythingSentis.git?path=/Packages/com.vass.depth-anything
 ```
 
-Depth Anything V2 is by Lihe Yang, Bingyi Kang, Zilong Huang, Zhen Zhao, Xiaogang Xu, Jiashi Feng and Hengshuang Zhao. [Original project](https://github.com/DepthAnything/Depth-Anything-V2). Small remains **Apache-2.0**; the upstream Base/Large/Giant variants have different, noncommercial terms and are not bundled. When redistributing the integration and bundled model, preserve [the MIT license](LICENSE), [the model's Apache-2.0 license](Packages/com.vass.depth-anything/ThirdParty/DepthAnything/LICENSE.txt) and the package's [Third Party Notices](Packages/com.vass.depth-anything/Third%20Party%20Notices.md).
+Sentis 2.6.1 and the Depth Anything V2 Small model are included automatically.
 
-Optional BodyPix is maintained by Keijiro Takahashi and distributed separately under its own notices. This project is not affiliated with Keijiro or the Depth Anything authors.
+## Samples
 
-The waterfall photograph was supplied by **Ashkon Khalkhali** for this demo. It is unretouched, with embedded EXIF/location metadata removed from the repository copy. The personal photograph and README previews containing it are excluded from the software's MIT license; they are supplied for display in this project's demos and documentation, without a broader grant of photo reuse. The optional generated studio image retains its original reuse note. See [Sample Image](Documentation/SampleImage.md) for both images' provenance. The original model is stored as a normal Git binary below GitHub's per-file size limit; no Git LFS setup is required. A package release may also be distributed as a `.tgz`.
+Open this repository as a Unity project, then open
+[`Assets/DepthDemo/DepthDemo.unity`](Assets/DepthDemo/DepthDemo.unity) and press Play.
+If you installed only the package, import **Basic** from its **Samples** tab.
 
-## Reproduce validation and package a release
+The demo shows the input image, depth map and a displaced mesh. Use **Sample Image**
+to choose a photo, **Use webcam** for live input, or assign a prepared `VideoPlayer`.
+The on-screen controls adjust quality, mesh depth and viewing angle.
 
-With Unity closed, run `Tools/Validate.ps1` in PowerShell. It builds and runs the Basic Windows player, writes checks under `Validation/basic`, and captures actual depth/relief textures. After enabling the BodyPix sample, use `Tools/Validate.ps1 -BodyPix`. Supply `-Unity` if the Editor is installed elsewhere. The smoke runner never opens a webcam automatically.
+### Optional BodyPix integration
 
-`Tools/Pack.ps1` creates `Releases/com.vass.depth-anything-0.1.2.tgz` for Package Manager's **Install package from tarball**. `Tools/Export-Source.ps1` creates the complete example project ZIP using the same package version. Bump the version or move an earlier archive aside before creating another release.
+![Input, person depth and displaced mesh](Documentation/waterfall-bodypix-demo.png)
+
+1. Install [BodyPixSentis 5.0.0](https://github.com/keijiro/BodyPixSentis#installation)
+   using Keijiro's scoped registry.
+2. Import this package's **Basic** sample if it is not already in your project,
+   then import **BodyPix**.
+3. Open the imported `BodyPixDemo.unity` and press Play.
+
+This sample uses BodyPix to isolate the person before displaying their depth.
+BodyPix is optional; the main package works without it.
+
+## API Usage
+
+```csharp
+// Create once.
+var estimator = new DepthAnything.DepthEstimator();
+
+// Call each frame. Inference is spread across frames.
+estimator.Process(inputTexture);
+
+// GPU output; null until the first estimate completes.
+var depth = estimator.DepthTexture;
+
+// Release resources when finished.
+estimator.Dispose();
+```
+
+The output contains relative inverse depth: larger values are nearer. It does not
+measure distance in meters. The estimator owns the output texture.
+
+Pass `DepthEstimator.Quality.Fast`, `Balanced` or `Detail` as the second argument
+to `Process` to change quality. For video, an optional third argument identifies
+the source frame. `DepthPostProcessor` converts the output to a 0–1 range; see the
+Basic sample for usage.
+
+## Model
+
+The package includes the [V2 Small ONNX model](https://huggingface.co/onnx-community/depth-anything-v2-small).
+No model conversion is needed. Larger Depth Anything models are not included.
+The mesh is a view of one image; rotating it can reveal gaps behind foreground objects.
+
+## Credits and License
+
+Unity integration by **Ashkon Khalkhali**. Code is licensed under [MIT](LICENSE).
+The included model is licensed under [Apache-2.0](Packages/com.vass.depth-anything/ThirdParty/DepthAnything/LICENSE.txt).
+See [Third Party Notices](Packages/com.vass.depth-anything/Third%20Party%20Notices.md)
+for model credits and separate photo usage terms.

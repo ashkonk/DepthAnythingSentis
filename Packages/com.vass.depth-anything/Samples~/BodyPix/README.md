@@ -1,9 +1,10 @@
-# Optional BodyPix integration
+# BodyPix sample
 
-Install Keijiro's `jp.keijiro.bodypix` **5.0.0**, then import this package's **Basic** sample, then this sample. Open **BodyPixDemo.unity** and press Play. The example repository already contains Basic under Assets/DepthDemo.
+1. Install [BodyPixSentis 5.0.0](https://github.com/keijiro/BodyPixSentis#installation)
+   using Keijiro's scoped registry.
+2. Import this package's **Basic** sample first, unless it is already in your project.
+3. Import **BodyPix**, open `BodyPixDemo.unity` and press Play.
 
-BodyPix is installed from the `https://registry.npmjs.org` scoped registry, with scopes `jp.keijiro.bodypix` and `jp.keijiro.klak.nnutils`. See https://github.com/keijiro/BodyPixSentis for its installation and license.
-
-The scene references the separately installed `MobileNetV1-x100-stride8` ResourceSet at a 512-pixel processing width. It extracts person probability from BodyPix's alpha channel (RGB contains part labels), then feeds the generic DepthPostProcessor with a current mask and the mask captured when inference began. No BodyPix models are bundled here. If the Inspector resource is missing, assign that ResourceSet from BodyPix's ResourceSet directory. Use smaller resources/resolutions if your live-input budget requires them.
-
-To remove BodyPix, remove this imported sample first. The core and Basic sample have no BodyPix assembly references. The optional adapter has no version-dependent code in the core package.
+The scene uses BodyPix's `MobileNetV1-x100-stride8` model to isolate the person and
+show their depth. If **Resources** is unassigned, select that asset from BodyPix's
+`ResourceSet` folder. The sample uses the Built-in Render Pipeline.

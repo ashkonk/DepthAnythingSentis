@@ -12,7 +12,6 @@ namespace DepthAnything.Samples
         public Texture2D sampleImage;
         public Shader displayShader;
         public Shader reliefShader;
-        public Shader overviewShader;
         public DepthEstimator.Quality quality = DepthEstimator.Quality.Balanced;
         public VideoPlayer videoPlayer;
         public bool useWebcam;
@@ -34,7 +33,7 @@ namespace DepthAnything.Samples
         Texture _lastSource;
         DepthEstimator.Quality _lastQuality;
         RenderTexture _externalDepth, _preview, _relief;
-        Material _displayMaterial, _reliefMaterial, _overviewMaterial;
+        Material _displayMaterial, _reliefMaterial;
         Mesh _grid;
         long _webcamFrame;
         bool _requestedWebcam, _webcamReady;
@@ -49,7 +48,6 @@ namespace DepthAnything.Samples
                 _post = new DepthPostProcessor();
                 _displayMaterial = new Material(displayShader) { hideFlags = HideFlags.HideAndDontSave };
                 _reliefMaterial = new Material(reliefShader) { hideFlags = HideFlags.HideAndDontSave };
-                _overviewMaterial = new Material(overviewShader) { hideFlags = HideFlags.HideAndDontSave };
                 _grid = CreateGrid(192, 128);
             }
             catch (Exception e) { Error = e.Message; Debug.LogError("Depth demo: " + Error, this); }
@@ -117,26 +115,6 @@ namespace DepthAnything.Samples
                 commands.DrawMesh(_grid, Matrix4x4.Rotate(Quaternion.Euler(0, orbit, 0)), _reliefMaterial);
                 Graphics.ExecuteCommandBuffer(commands);
             }
-        }
-
-        public RenderTexture DepthPreview => _preview;
-        public RenderTexture ReliefPreview => _relief;
-
-        /// <summary>Renders the three actual demo outputs offscreen. Caller owns the returned texture.</summary>
-        public RenderTexture CaptureOverview()
-        {
-            float aspect = Source.width / (float)Source.height;
-            const int width = 1800, margin = 24, gap = 20;
-            float panelWidth = (width - 2 * margin - 2 * gap) / 3f;
-            int height = Mathf.CeilToInt(panelWidth / Mathf.Clamp(aspect, .5f, 3f)) + 2 * margin;
-            var target = NewTarget("Depth demo overview", width, height);
-            _overviewMaterial.SetTexture("_Input", Source);
-            _overviewMaterial.SetTexture("_Depth", _preview);
-            _overviewMaterial.SetTexture("_Relief", _relief);
-            _overviewMaterial.SetFloat("_InputAspect", aspect);
-            _overviewMaterial.SetVector("_OutputSize", new Vector4(width, height, margin, gap));
-            Graphics.Blit(Texture2D.blackTexture, target, _overviewMaterial);
-            return target;
         }
 
         IEnumerator StartWebcam()
@@ -233,7 +211,6 @@ namespace DepthAnything.Samples
             Release(ref _preview); Release(ref _relief);
             if (_displayMaterial != null) Destroy(_displayMaterial);
             if (_reliefMaterial != null) Destroy(_reliefMaterial);
-            if (_overviewMaterial != null) Destroy(_overviewMaterial);
             if (_grid != null) Destroy(_grid);
         }
 

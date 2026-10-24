@@ -234,7 +234,6 @@ MonoBehaviour:
   sampleImage: {fileID: 2800000, guid: 142dd97d8ab348fabd599692c7ac7634, type: 3}
   displayShader: {fileID: 4800000, guid: 81246e8b67084ad4fbb31a151f788732, type: 3}
   reliefShader: {fileID: 4800000, guid: 9489337ae548bc14bbde97a0294bdce6, type: 3}
-  overviewShader: {fileID: 4800000, guid: d8856c0e3f489624b9f376d7648d2c86, type: 3}
   quality: 1
   videoPlayer: {fileID: 0}
   useWebcam: 0

@@ -1,20 +1,19 @@
 # Changelog
 
+## 0.1.3
+
+- Simplified installation and documentation.
+- Removed development-only tests, reports and capture tools.
+
 ## 0.1.2
 
-- Use Ashkon Khalkhali's supplied waterfall portrait in both sample scenes and actual inference README previews; keep the generated studio image as an alternative.
-- Preserve portrait proportions in the depth preview, displaced mesh and overview capture.
-- Remove embedded location metadata from the supplied photo and document its separate demo usage terms.
+- Added the waterfall photo and portrait support to both demos.
 
 ## 0.1.1
 
-- Licensed the original Unity integration under MIT, credited Ashkon Khalkhali, and retained a separate Apache-2.0 license for the model.
-- No changes to runtime code, model, shaders, scenes or sample assets.
+- Added author credits and MIT licensing for the integration.
+- Kept the model under Apache-2.0.
 
 ## 0.1.0
 
-- Extracted V2 Small GPU inference from VASS into an independent Unity package.
-- Added explicit lifecycle, reset/error state and bounded scheduling for still and live inputs.
-- Added GPU normalization and optional mask-aware interior depth fill.
-- Included Basic and optional BodyPix samples, sample image and scenes.
-- Pinned the unmodified ONNX export and preserved model attribution and license.
+- Initial release with GPU depth estimation, Basic and optional BodyPix samples.

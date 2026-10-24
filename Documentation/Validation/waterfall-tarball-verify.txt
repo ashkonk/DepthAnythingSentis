@@ -1,6 +1,0 @@
-PASS: Fresh tarball installation compiles without BodyPix.
-PASS: Package Manager Basic sample has intact scene/script/image/shader references.
-PASS: Sample photo preserves 1536x2049 dimensions.
-PASS: Bundled model performs GPU inference with finite, non-flat output.
-Ticks: 4
-Color space: Gamma
