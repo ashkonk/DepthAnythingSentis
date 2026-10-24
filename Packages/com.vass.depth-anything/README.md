@@ -1,7 +1,5 @@
-# Depth Anything V2
-
-Unity integration by **Ashkon Khalkhali**, extracted from VASS.
-
+# Depth Anything V2 Integration for Unity
+Made by Ashkon Khalkhali
 GPU monocular depth for Unity, based on the V2 Small ONNX export. Requires Unity 6 and Inference Engine 2.6.1. Tested with Unity 6000.6.3f1, Windows x64 and D3D11.
 
 ```csharp
